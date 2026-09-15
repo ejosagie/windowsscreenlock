@@ -234,17 +234,21 @@ class _LockScreenState extends State<LockScreen> with WindowListener {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.lock, size: 72, color: Colors.orange),
-              const SizedBox(height: 24),
+              Image.asset(
+                'assets/images/salecentra_logo.png',
+                width: 100,
+                height: 100,
+              ),
+              const SizedBox(height: 20),
               const Text(
-                'SaleCentra Lease',
+                'SaleCentra',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
                 'Enter your monthly access code to continue',
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
