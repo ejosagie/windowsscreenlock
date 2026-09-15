@@ -8,6 +8,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 
+  // Register app to run at Windows startup
+  await _ensureAutoStart();
+
   await windowManager.waitUntilReadyToShow();
   await windowManager.setTitle('SaleCentra Lease');
   await windowManager.setSize(const Size(500, 450));
@@ -17,6 +20,39 @@ void main() async {
   await windowManager.show();
 
   runApp(const SaleCentraLockApp());
+}
+
+/// Registers this app in the Windows registry to auto-start at boot.
+/// Uses HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+/// No admin rights required (current user only).
+Future<void> _ensureAutoStart() async {
+  try {
+    final exePath = Platform.resolvedExecutable;
+    const regKey = r'HKCU\Software\Microsoft\Windows\CurrentVersion\Run';
+    const regValue = 'SaleCentraLock';
+
+    // Check if already registered
+    final checkResult = await Process.run('reg', ['query', regKey, '/v', regValue]);
+    if (checkResult.exitCode == 0 && checkResult.stdout.toString().contains(exePath)) {
+      return; // Already registered
+    }
+
+    // Add to registry
+    await Process.run('reg', ['add', regKey, '/v', regValue, '/t', 'REG_SZ', '/d', '"$exePath"', '/f']);
+  } catch (_) {
+    // If registry fails, try startup folder as fallback
+    try {
+      final exePath = Platform.resolvedExecutable;
+      final startupDir = '${Platform.environment['APPDATA']}\\Microsoft\\Windows\\Start Menu\\Programs\\Startup';
+      final shortcutPath = '$startupDir\\SaleCentraLock.lnk';
+      final file = File(shortcutPath);
+      if (!await file.exists()) {
+        // Create a simple batch file as fallback
+        final batPath = '$startupDir\\SaleCentraLock.bat';
+        await File(batPath).writeAsString('start "" "$exePath"');
+      }
+    } catch (_) {}
+  }
 }
 
 class SaleCentraLockApp extends StatelessWidget {

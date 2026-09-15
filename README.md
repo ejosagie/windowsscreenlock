@@ -47,10 +47,12 @@ The built app will be in `build\windows\x64\runner\Release\`.
 ### 3. Deploy to the leased computer
 
 1. Copy the entire `Release` folder to the leased computer (e.g., `C:\SaleCentraLock\`)
-2. Add a shortcut to the startup folder:
-   - Press `Win + R`, type `shell:startup`
-   - Create a shortcut to `C:\SaleCentraLock\salecentra_lock.exe`
-3. Run the app once to initialize it — it will lock immediately and wait for the first code
+2. Run the app once (`salecentra_lock.exe`) — it will:
+   - Automatically register itself in the Windows registry to start at every boot
+   - Lock immediately and wait for the first access code
+3. No manual startup setup needed — the app handles it automatically
+
+The app writes to `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` so it launches at every boot. If registry access fails, it falls back to creating a batch file in the Windows Startup folder.
 
 ### 4. Using the codes
 
