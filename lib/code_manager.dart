@@ -14,9 +14,8 @@ import 'package:path_provider/path_provider.dart';
 /// The app validates entered codes against the expected next code.
 class CodeManager {
   static const String _secretSalt = 'SaleCentra_Lease_2024_SecureKey';
-  static const String _disableCode = 'SC-DISABLE-FINAL-PAYMENT-DONE';
-
   static const String _stateFileName = 'lease_state.json';
+  static const int _disableCodeIndex = -1;
 
   /// Generate a code for a given index.
   static String generateCode(int index) {
@@ -31,8 +30,8 @@ class CodeManager {
     return 30;
   }
 
-  /// The permanent disable code.
-  static String get disableCode => _disableCode;
+  /// The permanent disable code. Generated dynamically using the secret salt.
+  static String get disableCode => generateCode(_disableCodeIndex);
 
   /// Load the current state from disk.
   static Future<Map<String, dynamic>> loadState() async {
@@ -64,7 +63,7 @@ class CodeManager {
   static Future<CodeValidationResult> validateCode(String enteredCode) async {
     final code = enteredCode.trim().toUpperCase();
 
-    if (code == _disableCode) {
+    if (code == generateCode(_disableCodeIndex)) {
       final state = await loadState();
       state['disabled'] = true;
       await saveState(state);
