@@ -11,13 +11,21 @@ void main() async {
   // Register app to run at Windows startup
   await _ensureAutoStart();
 
+  // Check status BEFORE showing window — only show if locked
+  final status = await CodeManager.checkStatus();
+  final shouldShow = status.isLocked && !status.isDisabled;
+
   await windowManager.waitUntilReadyToShow();
   await windowManager.setTitle('SaleCentra Lease');
   await windowManager.setSize(const Size(500, 450));
   await windowManager.center();
-  await windowManager.setAlwaysOnTop(true);
-  await windowManager.setSkipTaskbar(false);
-  await windowManager.show();
+  await windowManager.setAlwaysOnTop(shouldShow);
+  await windowManager.setSkipTaskbar(!shouldShow);
+
+  if (shouldShow) {
+    await windowManager.show();
+  }
+  // If not locked, window stays hidden — no lock screen shown
 
   runApp(const SaleCentraLockApp());
 }
@@ -131,9 +139,9 @@ class _LockScreenState extends State<LockScreen> with WindowListener {
       await windowManager.setAlwaysOnTop(true);
       await windowManager.focus();
     } else {
-      // Unlocked — hide window, minimize to tray-like behavior
+      // Unlocked — hide window completely
       await windowManager.setAlwaysOnTop(false);
-      await windowManager.minimize();
+      await windowManager.hide();
     }
   }
 
