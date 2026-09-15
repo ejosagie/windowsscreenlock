@@ -97,8 +97,8 @@ class _LockScreenState extends State<LockScreen> with WindowListener {
     super.initState();
     windowManager.addListener(this);
     _checkStatus();
-    // Periodically re-check status (every 60 seconds) to catch expiry
-    _checkTimer = Timer.periodic(const Duration(seconds: 60), (_) => _checkStatus());
+    // Check once per day to catch expiry
+    _checkTimer = Timer.periodic(const Duration(days: 1), (_) => _checkStatus());
   }
 
   @override
